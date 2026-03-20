@@ -14,11 +14,16 @@ public class ProductRepository : IProductRepository
         await _ctx.Products.Where(p => p.IsActive).OrderBy(p => p.Name).ToListAsync();
 
     public async Task<Product?> GetByIdAsync(Guid id) =>
-        await _ctx.Products.FindAsync(id);
+        await _ctx.Products
+            .Include(p => p.Variants)
+            .FirstOrDefaultAsync(p => p.Id == id);
 
     public async Task<(IEnumerable<Product> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, string? search)
     {
-        var query = _ctx.Products.Where(p => p.IsActive);
+        var query = _ctx.Products
+            .Include(p => p.Variants)
+            .Where(p => p.IsActive);
+
         if (!string.IsNullOrWhiteSpace(search))
         {
             query = query.Where(p => p.Name.Contains(search) || (p.SKU != null && p.SKU.Contains(search)));

@@ -16,6 +16,7 @@ public class StockTechDbContext : DbContext
     public DbSet<PurchaseItem> PurchaseItems => Set<PurchaseItem>();
     public DbSet<Supplier> Suppliers => Set<Supplier>();
     public DbSet<Branch> Branches => Set<Branch>();
+    public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
     public DbSet<InventoryTransaction> InventoryTransactions => Set<InventoryTransaction>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

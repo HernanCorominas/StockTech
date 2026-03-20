@@ -1,5 +1,24 @@
 namespace StockTech.Application.DTOs.Products;
 
+public record ProductVariantDto(
+    Guid Id,
+    Guid ProductId,
+    string? Size,
+    string? Color,
+    string SKU,
+    decimal Price,
+    int Stock,
+    bool IsActive
+);
+
+public record CreateProductVariantDto(
+    string? Size,
+    string? Color,
+    string SKU,
+    decimal Price,
+    int Stock
+);
+
 public record CreateProductDto(
     string Name,
     string? Description,
@@ -8,7 +27,8 @@ public record CreateProductDto(
     decimal Cost,
     int Stock,
     int MinStock,
-    string? Category
+    string? Category,
+    List<CreateProductVariantDto>? Variants = null
 );
 
 public record UpdateProductDto(
@@ -19,7 +39,8 @@ public record UpdateProductDto(
     decimal Cost,
     int MinStock,
     string? Category,
-    bool IsActive
+    bool IsActive,
+    List<CreateProductVariantDto>? Variants = null
 );
 
 public record ProductDto(
@@ -34,5 +55,6 @@ public record ProductDto(
     string? Category,
     bool IsActive,
     bool LowStock,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    List<ProductVariantDto> Variants
 );

@@ -15,6 +15,7 @@ public class Product : BaseEntity
     public uint xmin { get; set; } // PostgreSQL internal transaction ID for optimistic concurrency (xid)
 
     // Navigation
+    public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
     public ICollection<InvoiceItem> InvoiceItems { get; set; } = new List<InvoiceItem>();
     public ICollection<PurchaseItem> PurchaseItems { get; set; } = new List<PurchaseItem>();
 }

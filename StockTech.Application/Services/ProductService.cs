@@ -53,6 +53,21 @@ public class ProductService : IProductService
             Category = dto.Category?.Trim()
         };
 
+        if (dto.Variants != null && dto.Variants.Any())
+        {
+            foreach (var v in dto.Variants)
+            {
+                product.Variants.Add(new ProductVariant
+                {
+                    Size = v.Size,
+                    Color = v.Color,
+                    SKU = v.SKU,
+                    Price = v.Price,
+                    Stock = v.Stock
+                });
+            }
+        }
+
         await _uow.Products.AddAsync(product);
         await _uow.CommitAsync();
         return Map(product);
@@ -73,6 +88,26 @@ public class ProductService : IProductService
         product.IsActive = dto.IsActive;
         product.UpdatedAt = DateTime.UtcNow;
 
+        // Sync Variants
+        if (dto.Variants != null)
+        {
+            // Simple sync: clear and re-add or match by SKU. 
+            // For now, let's just clear and re-add for simplicity in this sprint step, 
+            // but normally we'd match by Id/SKU.
+            product.Variants.Clear();
+            foreach (var v in dto.Variants)
+            {
+                product.Variants.Add(new ProductVariant
+                {
+                    Size = v.Size,
+                    Color = v.Color,
+                    SKU = v.SKU,
+                    Price = v.Price,
+                    Stock = v.Stock
+                });
+            }
+        }
+
         _uow.Products.Update(product);
         await _uow.CommitAsync();
         return Map(product);
@@ -91,6 +126,9 @@ public class ProductService : IProductService
     private static ProductDto Map(Product p) => new(
         p.Id, p.Name, p.Description, p.SKU, p.Price, p.Cost,
         p.Stock, p.MinStock, p.Category, p.IsActive,
-        p.Stock <= p.MinStock, p.CreatedAt
+        p.Stock <= p.MinStock, p.CreatedAt,
+        p.Variants.Select(v => new ProductVariantDto(
+            v.Id, v.ProductId, v.Size, v.Color, v.SKU, v.Price, v.Stock, v.IsActive
+        )).ToList()
     );
 }
