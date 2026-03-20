@@ -15,6 +15,7 @@ public class UnitOfWork : IUnitOfWork
     public ISupplierRepository Suppliers { get; }
     public IBranchRepository Branches { get; }
     public IUserRepository Users { get; }
+    public IInventoryTransactionRepository InventoryTransactions { get; }
 
     public UnitOfWork(StockTechDbContext ctx)
     {
@@ -26,6 +27,7 @@ public class UnitOfWork : IUnitOfWork
         Suppliers = new SupplierRepository(ctx);
         Branches = new BranchRepository(ctx);
         Users = new UserRepository(ctx);
+        InventoryTransactions = new InventoryTransactionRepository(ctx);
     }
 
     public async Task<int> CommitAsync() => await _ctx.SaveChangesAsync();

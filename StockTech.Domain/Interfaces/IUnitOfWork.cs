@@ -9,5 +9,6 @@ public interface IUnitOfWork : IDisposable
     ISupplierRepository Suppliers { get; }
     IBranchRepository Branches { get; }
     IUserRepository Users { get; }
+    IInventoryTransactionRepository InventoryTransactions { get; }
     Task<int> CommitAsync();
 }

@@ -2,14 +2,20 @@ using StockTech.Application.DTOs.Purchases;
 using StockTech.Application.Interfaces;
 using StockTech.Domain.Entities;
 using StockTech.Domain.Interfaces;
+using StockTech.Domain.Enums;
 
 namespace StockTech.Application.Services;
 
 public class PurchaseService : IPurchaseService
 {
     private readonly IUnitOfWork _uow;
+    private readonly IInventoryService _inventoryService;
 
-    public PurchaseService(IUnitOfWork uow) => _uow = uow;
+    public PurchaseService(IUnitOfWork uow, IInventoryService inventoryService)
+    {
+        _uow = uow;
+        _inventoryService = inventoryService;
+    }
 
     public async Task<IEnumerable<PurchaseDto>> GetAllAsync()
     {
@@ -51,6 +57,14 @@ public class PurchaseService : IPurchaseService
                 UnitCost = itemDto.UnitCost,
                 LineTotal = lineTotal
             });
+
+            // Log inventory transaction (Kardex)
+            await _inventoryService.LogTransactionAsync(
+                product.Id, 
+                itemDto.Quantity, 
+                TransactionType.Purchase, 
+                purchase.PurchaseNumber,
+                purchaseId: purchase.Id);
 
             // Increment stock
             product.Stock += itemDto.Quantity;
