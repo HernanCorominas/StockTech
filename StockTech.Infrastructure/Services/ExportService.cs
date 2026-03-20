@@ -74,7 +74,7 @@ public class ExportService : IExportService
             sheet.Cell(row, 2).Value = i.InvoiceDate.ToString("dd/MM/yyyy");
             sheet.Cell(row, 3).Value = i.ClientName ?? "N/A";
             sheet.Cell(row, 4).Value = (double)i.Total;
-            sheet.Cell(row, 5).Value = i.Status;
+            sheet.Cell(row, 5).Value = i.Status.ToString();
             row++;
         }
         
