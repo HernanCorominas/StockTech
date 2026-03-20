@@ -12,6 +12,8 @@ using StockTech.Infrastructure.Data;
 using StockTech.Infrastructure.Persistence;
 using StockTech.Infrastructure.Services;
 using System.Text;
+using StockTech.API.Hubs;
+using StockTech.API.Services;
 using Serilog;
 using Asp.Versioning;
 using StockTech.API.Middlewares;
@@ -37,6 +39,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // ─── Infrastructure Services ──────────────────────────────────────────────────
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IExcelExportService, ExcelExportService>();
+builder.Services.AddScoped<IExportService, ExportService>();
 
 // ─── Application Services ────────────────────────────────────────────────────
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -50,6 +53,8 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddSignalR();
 
 // ─── JWT Authentication ───────────────────────────────────────────────────────
 var jwtKey = builder.Configuration["Jwt:Key"]!;
@@ -100,7 +105,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
         policy.WithOrigins("http://localhost:4200", "http://localhost:4201", "https://stocktechfrontend.vercel.app")
               .AllowAnyHeader()
-              .AllowAnyMethod());
+              .AllowAnyMethod()
+              .AllowCredentials());
 });
 
 // ─── Controllers & Swagger ───────────────────────────────────────────────────
@@ -160,5 +166,6 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();

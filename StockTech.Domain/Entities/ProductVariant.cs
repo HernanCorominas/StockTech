@@ -10,5 +10,6 @@ public class ProductVariant : BaseEntity
     public string SKU { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public int Stock { get; set; }
+    public int MinStock { get; set; } = 0;
     public bool IsActive { get; set; } = true;
 }

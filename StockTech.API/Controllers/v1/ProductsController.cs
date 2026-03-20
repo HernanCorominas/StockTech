@@ -13,8 +13,29 @@ namespace StockTech.API.Controllers.v1;
 public class ProductsController : ControllerBase
 {
     private readonly IProductService _service;
+    private readonly IExportService _exportService;
 
-    public ProductsController(IProductService service) => _service = service;
+    public ProductsController(IProductService service, IExportService exportService)
+    {
+        _service = service;
+        _exportService = exportService;
+    }
+
+    [HttpGet("export/excel")]
+    public async Task<IActionResult> ExportExcel()
+    {
+        var products = await _service.GetAllAsync();
+        var bytes = await _exportService.ExportProductsToExcelAsync(products);
+        return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Productos_{DateTime.Now:yyyyMMdd}.xlsx");
+    }
+
+    [HttpGet("export/pdf")]
+    public async Task<IActionResult> ExportPdf()
+    {
+        var products = await _service.GetAllAsync();
+        var bytes = await _exportService.ExportProductsToPdfAsync(products);
+        return File(bytes, "application/pdf", $"Productos_{DateTime.Now:yyyyMMdd}.pdf");
+    }
 
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null) =>

@@ -1,3 +1,4 @@
+using StockTech.Application.Interfaces;
 using StockTech.Domain.Entities;
 using StockTech.Domain.Enums;
 using StockTech.Domain.Interfaces;
@@ -7,10 +8,12 @@ namespace StockTech.Application.Services;
 public class InventoryService : IInventoryService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificationService _notificationService;
 
-    public InventoryService(IUnitOfWork unitOfWork)
+    public InventoryService(IUnitOfWork unitOfWork, INotificationService notificationService)
     {
         _unitOfWork = unitOfWork;
+        _notificationService = notificationService;
     }
 
     public async Task LogTransactionAsync(Guid productId, decimal quantity, TransactionType type, string? referenceNumber = null, Guid? invoiceId = null, Guid? purchaseId = null)
@@ -38,6 +41,12 @@ public class InventoryService : IInventoryService
         };
 
         await _unitOfWork.InventoryTransactions.AddAsync(transaction);
+        
+        // Low Stock Check
+        if (newStock <= product.MinStock && previousStock > product.MinStock)
+        {
+            await _notificationService.SendLowStockAlertAsync(product.Name, (int)newStock);
+        }
         
         // Note: The product stock itself is updated in the calling service (Invoice/Purchase)
         // to keep the domain logic intact and avoid side effects in the logger.
