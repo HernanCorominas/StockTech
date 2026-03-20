@@ -13,10 +13,14 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.Id).HasColumnName("id");
         builder.Property(x => x.Username).HasColumnName("username").IsRequired().HasMaxLength(100);
         builder.Property(x => x.PasswordHash).HasColumnName("password_hash").IsRequired();
-        builder.Property(x => x.Role).HasColumnName("role").HasMaxLength(50);
         builder.Property(x => x.FullName).HasColumnName("full_name").HasMaxLength(200);
         builder.Property(x => x.Email).HasColumnName("email").HasMaxLength(200);
         builder.Property(x => x.IsActive).HasColumnName("is_active");
+        
+        // RBAC
+        builder.Property(x => x.RoleId).HasColumnName("role_id").IsRequired();
+        builder.HasOne(x => x.Role).WithMany().HasForeignKey(x => x.RoleId);
+
         builder.Property(x => x.CreatedAt).HasColumnName("created_at");
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
         builder.HasIndex(x => x.Username).IsUnique();

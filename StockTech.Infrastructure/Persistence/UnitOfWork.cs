@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using StockTech.Domain.Interfaces;
 using StockTech.Infrastructure.Data;
 using StockTech.Infrastructure.Repositories;
@@ -29,6 +30,8 @@ public class UnitOfWork : IUnitOfWork
         Users = new UserRepository(ctx);
         InventoryTransactions = new InventoryTransactionRepository(ctx);
     }
+
+    public async Task<IEnumerable<T>> GetSetAsync<T>() where T : class => await _ctx.Set<T>().ToListAsync();
 
     public async Task<int> CommitAsync() => await _ctx.SaveChangesAsync();
 

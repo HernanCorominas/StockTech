@@ -28,6 +28,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "RequireProductWrite")]
     public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
     {
         var result = await _service.CreateAsync(dto);
@@ -35,6 +36,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Policy = "RequireProductWrite")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductDto dto)
     {
         var result = await _service.UpdateAsync(id, dto);
@@ -42,6 +44,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Policy = "RequireProductDelete")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var success = await _service.DeleteAsync(id);

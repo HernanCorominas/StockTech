@@ -28,7 +28,7 @@ public class AuthService : IAuthService
         return new LoginResponseDto(
             Token: token,
             Username: user.Username,
-            Role: user.Role,
+            Role: user.Role.Name,
             ExpiresAt: expiresAt
         );
     }

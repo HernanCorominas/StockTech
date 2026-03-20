@@ -1,13 +1,18 @@
+using Audit.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using StockTech.Domain.Entities;
 
 namespace StockTech.Infrastructure.Data;
 
-public class StockTechDbContext : DbContext
+public class StockTechDbContext : AuditDbContext
 {
     public StockTechDbContext(DbContextOptions<StockTechDbContext> options) : base(options) { }
 
     public DbSet<User> Users => Set<User>();
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<Permission> Permissions => Set<Permission>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    
     public DbSet<Client> Clients => Set<Client>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Invoice> Invoices => Set<Invoice>();

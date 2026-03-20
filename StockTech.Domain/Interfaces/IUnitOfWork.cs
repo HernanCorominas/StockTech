@@ -10,5 +10,6 @@ public interface IUnitOfWork : IDisposable
     IBranchRepository Branches { get; }
     IUserRepository Users { get; }
     IInventoryTransactionRepository InventoryTransactions { get; }
+    Task<IEnumerable<T>> GetSetAsync<T>() where T : class;
     Task<int> CommitAsync();
 }

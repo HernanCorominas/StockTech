@@ -4,6 +4,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StockTech.Application.Interfaces;
 using StockTech.Application.Services;
+using StockTech.Domain.Entities;
+using Audit.Core;
+using System.Text.Json;
 using StockTech.Domain.Interfaces;
 using StockTech.Infrastructure.Data;
 using StockTech.Infrastructure.Persistence;
@@ -46,6 +49,7 @@ builder.Services.AddScoped<IBranchService, BranchService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // ─── JWT Authentication ───────────────────────────────────────────────────────
 var jwtKey = builder.Configuration["Jwt:Key"]!;
@@ -64,7 +68,31 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireProductWrite", policy => policy.RequireClaim("permission", "product:write"));
+    options.AddPolicy("RequireProductDelete", policy => policy.RequireClaim("permission", "product:delete"));
+    options.AddPolicy("RequireInvoiceCreate", policy => policy.RequireClaim("permission", "invoice:create"));
+    options.AddPolicy("RequireUserManage", policy => policy.RequireClaim("permission", "user:manage"));
+    options.AddPolicy("RequireUserRead", policy => policy.RequireClaim("permission", "user:read"));
+});
+
+// ─── Audit.NET Configuration ──────────────────────────────────────────────────
+Audit.Core.Configuration.Setup()
+    .UseEntityFramework(_ => _
+        .AuditTypeMapper(t => typeof(AuditLog))
+        .AuditEntityAction<AuditLog>((ev, ent, auditEntity) =>
+        {
+            auditEntity.TableName = ent.Table;
+            auditEntity.Action = ent.Action;
+            auditEntity.KeyValues = JsonSerializer.Serialize(ent.PrimaryKey);
+            auditEntity.OldValues = ent.Action == "Update" ? JsonSerializer.Serialize(ent.Changes) : null;
+            auditEntity.NewValues = (ent.Action == "Insert" || ent.Action == "Update") ? JsonSerializer.Serialize(ent.ColumnValues) : null;
+            auditEntity.User = ev.CustomFields.ContainsKey("User") ? ev.CustomFields["User"].ToString() : ev.Environment.UserName;
+            auditEntity.CreatedAt = DateTime.UtcNow;
+            auditEntity.UpdatedAt = DateTime.UtcNow;
+        })
+        .IgnoreMatchedProperties(true));
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
 builder.Services.AddCors(options =>

@@ -20,13 +20,21 @@ public class JwtService : IJwtService
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var expires = DateTime.UtcNow.AddHours(8);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
-            new Claim(ClaimTypes.Role, user.Role),
+            new Claim(ClaimTypes.Role, user.Role.Name),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
+
+        if (user.Role.Permissions != null)
+        {
+            foreach (var permission in user.Role.Permissions)
+            {
+                claims.Add(new Claim("permission", permission.Name));
+            }
+        }
 
         var token = new JwtSecurityToken(
             issuer: _config["Jwt:Issuer"],
