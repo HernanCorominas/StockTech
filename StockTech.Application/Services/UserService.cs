@@ -64,4 +64,16 @@ public class UserService : IUserService
     {
         return await _unitOfWork.GetSetAsync<Role>();
     }
+
+    public async Task ChangePasswordAsync(Guid userId, string newPassword)
+    {
+        var user = await _unitOfWork.Users.GetByIdAsync(userId);
+        if (user == null) return;
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await _unitOfWork.Users.UpdateAsync(user);
+        await _unitOfWork.CommitAsync();
+    }
 }

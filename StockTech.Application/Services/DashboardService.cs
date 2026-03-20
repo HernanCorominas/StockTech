@@ -44,6 +44,12 @@ public class DashboardService : IDashboardService
             .Take(5)
             .ToList();
 
+        // Category distribution
+        var categoryDistribution = products
+            .GroupBy(p => p.Category ?? "Sin Categoría")
+            .Select(g => new CategoryStockDto(g.Key, g.Sum(p => p.Stock)))
+            .ToList();
+
         return new DashboardDto(
             TotalSales: totalSales,
             TotalPurchases: totalPurchases,
@@ -55,7 +61,8 @@ public class DashboardService : IDashboardService
             Profit: totalSales - totalPurchases,
             MonthlySales: monthlySales,
             MonthlyPurchases: monthlyPurchases,
-            TopProducts: topProducts
+            TopProducts: topProducts,
+            CategoryDistribution: categoryDistribution
         );
     }
 }

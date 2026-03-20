@@ -76,6 +76,22 @@ public class UsersController : ControllerBase
         await _userService.DeleteAsync(id);
         return NoContent();
     }
+
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+    {
+        // Get user ID from claims
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+        if (userIdClaim == null) return Unauthorized();
+
+        await _userService.ChangePasswordAsync(Guid.Parse(userIdClaim.Value), dto.NewPassword);
+        return Ok(new { message = "Password updated successfully" });
+    }
+}
+
+public class ChangePasswordDto
+{
+    public string NewPassword { get; set; } = string.Empty;
 }
 
 public class UserCreateDto

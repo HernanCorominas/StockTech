@@ -10,4 +10,5 @@ public interface IUserService
     Task UpdateAsync(User user);
     Task DeleteAsync(Guid id);
     Task<IEnumerable<Role>> GetRolesAsync();
+    Task ChangePasswordAsync(Guid userId, string newPassword);
 }
