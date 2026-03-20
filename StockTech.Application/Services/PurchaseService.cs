@@ -28,7 +28,8 @@ public class PurchaseService : IPurchaseService
         var purchase = new Purchase
         {
             PurchaseNumber = await GeneratePurchaseNumberAsync(),
-            Supplier = dto.Supplier.Trim(),
+            SupplierId = dto.SupplierId,
+            BranchId = dto.BranchId,
             Notes = dto.Notes,
             PurchaseDate = DateTime.UtcNow
         };
@@ -75,7 +76,10 @@ public class PurchaseService : IPurchaseService
     private static PurchaseDto Map(Purchase p) => new(
         p.Id,
         p.PurchaseNumber,
-        p.Supplier,
+        p.SupplierId,
+        p.Supplier?.Name ?? "Unknown",
+        p.BranchId,
+        p.Branch?.Name,
         p.PurchaseDate,
         p.Total,
         p.Notes,

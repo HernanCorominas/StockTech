@@ -16,6 +16,23 @@ public class ProductRepository : IProductRepository
     public async Task<Product?> GetByIdAsync(Guid id) =>
         await _ctx.Products.FindAsync(id);
 
+    public async Task<(IEnumerable<Product> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, string? search)
+    {
+        var query = _ctx.Products.Where(p => p.IsActive);
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(p => p.Name.Contains(search) || (p.SKU != null && p.SKU.Contains(search)));
+        }
+        
+        var totalCount = await query.CountAsync();
+        var items = await query.OrderBy(p => p.Name)
+                               .Skip((page - 1) * pageSize)
+                               .Take(pageSize)
+                               .ToListAsync();
+                               
+        return (items, totalCount);
+    }
+
     public async Task AddAsync(Product product) => await _ctx.Products.AddAsync(product);
 
     public void Update(Product product) => _ctx.Products.Update(product);

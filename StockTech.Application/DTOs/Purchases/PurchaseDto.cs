@@ -7,7 +7,8 @@ public record CreatePurchaseItemDto(
 );
 
 public record CreatePurchaseDto(
-    string Supplier,
+    Guid SupplierId,
+    Guid? BranchId,
     List<CreatePurchaseItemDto> Items,
     string? Notes
 );
@@ -24,7 +25,10 @@ public record PurchaseItemDto(
 public record PurchaseDto(
     Guid Id,
     string PurchaseNumber,
-    string Supplier,
+    Guid? SupplierId,
+    string SupplierName,
+    Guid? BranchId,
+    string? BranchName,
     DateTime PurchaseDate,
     decimal Total,
     string? Notes,

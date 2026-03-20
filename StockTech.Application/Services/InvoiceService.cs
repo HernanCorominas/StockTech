@@ -1,3 +1,4 @@
+using StockTech.Application.DTOs.Common;
 using StockTech.Application.DTOs.Invoices;
 using StockTech.Application.Interfaces;
 using StockTech.Domain.Entities;
@@ -23,18 +24,23 @@ public class InvoiceService : IInvoiceService
         return invoice is null ? null : Map(invoice);
     }
 
+    public async Task<PagedResult<InvoiceDto>> GetPagedAsync(int page, int pageSize, string? search)
+    {
+        if (page < 1) page = 1;
+        if (pageSize < 1 || pageSize > 100) pageSize = 10;
+        
+        var result = await _uow.Invoices.GetPagedAsync(page, pageSize, search);
+        return new PagedResult<InvoiceDto>
+        {
+            Items = result.Items.Select(Map),
+            TotalCount = result.TotalCount,
+            PageNumber = page,
+            PageSize = pageSize
+        };
+    }
+
     public async Task<InvoiceDto> CreateAsync(CreateInvoiceDto dto)
     {
-        // Business rule guards (Onion: domain integrity enforced in service layer)
-        if (dto.Items == null || !dto.Items.Any())
-            throw new ArgumentException("La factura debe tener al menos un item.");
-
-        if (dto.Items.Any(i => i.Quantity <= 0))
-            throw new ArgumentException("La cantidad de cada item debe ser mayor a cero.");
-
-        if (dto.TaxRate < 0 || dto.TaxRate > 1)
-            throw new ArgumentException("El tax rate debe estar entre 0 y 1 (ej: 0.18 para 18%).");
-
         var client = await _uow.Clients.GetByIdAsync(dto.ClientId)
             ?? throw new ArgumentException("Client not found");
 
@@ -42,6 +48,7 @@ public class InvoiceService : IInvoiceService
         {
             InvoiceNumber = await GenerateInvoiceNumberAsync(),
             ClientId = dto.ClientId,
+            BranchId = dto.BranchId,
             TaxRate = dto.TaxRate,
             Notes = dto.Notes,
             InvoiceDate = DateTime.UtcNow
@@ -99,6 +106,8 @@ public class InvoiceService : IInvoiceService
         i.ClientId,
         i.Client?.Name ?? string.Empty,
         i.Client?.Document ?? string.Empty,
+        i.BranchId,
+        i.Branch?.Name,
         i.InvoiceDate,
         i.Subtotal,
         i.TaxRate,

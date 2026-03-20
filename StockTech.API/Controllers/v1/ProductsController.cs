@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
 using StockTech.Application.DTOs.Products;
 using StockTech.Application.Interfaces;
 
 namespace StockTech.API.Controllers.v1;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Authorize]
 public class ProductsController : ControllerBase
 {
@@ -15,8 +17,8 @@ public class ProductsController : ControllerBase
     public ProductsController(IProductService service) => _service = service;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll() =>
-        Ok(await _service.GetAllAsync());
+    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null) =>
+        Ok(await _service.GetPagedAsync(page, pageSize, search));
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)

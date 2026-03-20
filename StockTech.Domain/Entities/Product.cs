@@ -12,6 +12,8 @@ public class Product : BaseEntity
     public string? Category { get; set; }
     public bool IsActive { get; set; } = true;
 
+    public uint xmin { get; set; } // PostgreSQL internal transaction ID for optimistic concurrency (xid)
+
     // Navigation
     public ICollection<InvoiceItem> InvoiceItems { get; set; } = new List<InvoiceItem>();
     public ICollection<PurchaseItem> PurchaseItems { get; set; } = new List<PurchaseItem>();

@@ -6,6 +6,8 @@ public interface IUnitOfWork : IDisposable
     IProductRepository Products { get; }
     IInvoiceRepository Invoices { get; }
     IPurchaseRepository Purchases { get; }
+    ISupplierRepository Suppliers { get; }
+    IBranchRepository Branches { get; }
     IUserRepository Users { get; }
     Task<int> CommitAsync();
 }

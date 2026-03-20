@@ -12,6 +12,8 @@ public class UnitOfWork : IUnitOfWork
     public IProductRepository Products { get; }
     public IInvoiceRepository Invoices { get; }
     public IPurchaseRepository Purchases { get; }
+    public ISupplierRepository Suppliers { get; }
+    public IBranchRepository Branches { get; }
     public IUserRepository Users { get; }
 
     public UnitOfWork(StockTechDbContext ctx)
@@ -21,6 +23,8 @@ public class UnitOfWork : IUnitOfWork
         Products = new ProductRepository(ctx);
         Invoices = new InvoiceRepository(ctx);
         Purchases = new PurchaseRepository(ctx);
+        Suppliers = new SupplierRepository(ctx);
+        Branches = new BranchRepository(ctx);
         Users = new UserRepository(ctx);
     }
 

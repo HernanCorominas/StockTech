@@ -32,7 +32,7 @@ public class ReportService : IReportService
 
         var purchaseItems = purchases.Select(p => new PurchaseReportItemDto(
             p.PurchaseNumber,
-            p.Supplier,
+            p.Supplier?.Name ?? "Unknown",
             p.PurchaseDate,
             p.Total
         )).ToList();

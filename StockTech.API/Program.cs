@@ -9,8 +9,19 @@ using StockTech.Infrastructure.Data;
 using StockTech.Infrastructure.Persistence;
 using StockTech.Infrastructure.Services;
 using System.Text;
+using Serilog;
+using Asp.Versioning;
+using StockTech.API.Middlewares;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ─── Serilog ─────────────────────────────────────────────────────────────────
+builder.Host.UseSerilog((context, configuration) => 
+    configuration.ReadFrom.Configuration(context.Configuration)
+                 .WriteTo.Console()
+                 .Enrich.FromLogContext());
 
 // ─── Database ────────────────────────────────────────────────────────────────
 builder.Services.AddDbContext<StockTechDbContext>(options =>
@@ -30,6 +41,8 @@ builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>();
+builder.Services.AddScoped<ISupplierService, SupplierService>();
+builder.Services.AddScoped<IBranchService, BranchService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 
@@ -63,6 +76,20 @@ builder.Services.AddCors(options =>
 
 // ─── Controllers & Swagger ───────────────────────────────────────────────────
 builder.Services.AddControllers();
+builder.Services.AddFluentValidationAutoValidation()
+                .AddValidatorsFromAssembly(typeof(StockTech.Application.Interfaces.IAuthService).Assembly);
+
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -90,6 +117,9 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // ─── Middleware Pipeline ──────────────────────────────────────────────────────
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseSerilogRequestLogging();
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {

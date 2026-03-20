@@ -7,6 +7,8 @@ public class Invoice : BaseEntity
     public string InvoiceNumber { get; set; } = string.Empty;
     public Guid ClientId { get; set; }
     public Client Client { get; set; } = null!;
+    public Guid? BranchId { get; set; }
+    public Branch? Branch { get; set; }
     public DateTime InvoiceDate { get; set; } = DateTime.UtcNow;
     public decimal Subtotal { get; set; }
     public decimal TaxRate { get; set; } = 0.18m; // ITBIS 18%

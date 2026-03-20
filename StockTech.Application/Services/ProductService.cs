@@ -1,3 +1,4 @@
+using StockTech.Application.DTOs.Common;
 using StockTech.Application.DTOs.Products;
 using StockTech.Application.Interfaces;
 using StockTech.Domain.Entities;
@@ -21,6 +22,21 @@ public class ProductService : IProductService
     {
         var product = await _uow.Products.GetByIdAsync(id);
         return product is null ? null : Map(product);
+    }
+
+    public async Task<PagedResult<ProductDto>> GetPagedAsync(int page, int pageSize, string? search)
+    {
+        if (page < 1) page = 1;
+        if (pageSize < 1 || pageSize > 100) pageSize = 10;
+        
+        var result = await _uow.Products.GetPagedAsync(page, pageSize, search);
+        return new PagedResult<ProductDto>
+        {
+            Items = result.Items.Select(Map),
+            TotalCount = result.TotalCount,
+            PageNumber = page,
+            PageSize = pageSize
+        };
     }
 
     public async Task<ProductDto> CreateAsync(CreateProductDto dto)

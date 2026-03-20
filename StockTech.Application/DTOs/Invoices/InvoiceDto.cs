@@ -10,6 +10,7 @@ public record CreateInvoiceItemDto(
 
 public record CreateInvoiceDto(
     [Required] Guid ClientId,
+    Guid? BranchId,
     [Required, MinLength(1, ErrorMessage = "La factura debe tener al menos un item.")] List<CreateInvoiceItemDto> Items,
     [Range(0, 1, ErrorMessage = "Tax rate debe estar entre 0 y 1.")] decimal TaxRate,
     string? Notes
@@ -31,6 +32,8 @@ public record InvoiceDto(
     Guid ClientId,
     string ClientName,
     string ClientDocument,
+    Guid? BranchId,
+    string? BranchName,
     DateTime InvoiceDate,
     decimal Subtotal,
     decimal TaxRate,

@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
 using StockTech.Application.DTOs.Reports;
 using StockTech.Application.Interfaces;
 
 namespace StockTech.API.Controllers.v1;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Authorize]
 public class ReportsController : ControllerBase
 {
