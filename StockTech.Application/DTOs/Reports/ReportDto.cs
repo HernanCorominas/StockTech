@@ -1,6 +1,6 @@
 namespace StockTech.Application.DTOs.Reports;
 
-public record ReportFilterDto(DateTime From, DateTime To);
+public record ReportFilterDto(DateTime From, DateTime To, string? BranchId = null);
 
 public record SalesReportItemDto(
     string InvoiceNumber,

@@ -12,9 +12,11 @@ public record DashboardDto(
     List<MonthlySummaryDto> MonthlySales,
     List<MonthlySummaryDto> MonthlyPurchases,
     List<TopProductDto> TopProducts,
-    List<CategoryStockDto> CategoryDistribution
+    List<CategoryStockDto> CategoryDistribution,
+    List<BranchSalesDto> BranchSales
 );
 
 public record MonthlySummaryDto(string Month, decimal Total);
 public record TopProductDto(string ProductName, int QuantitySold, decimal Revenue);
 public record CategoryStockDto(string Category, int StockCount);
+public record BranchSalesDto(string BranchName, decimal TotalSales);

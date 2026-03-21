@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
 using StockTech.Application.Interfaces;
@@ -16,6 +17,6 @@ public class DashboardController : ControllerBase
     public DashboardController(IDashboardService service) => _service = service;
 
     [HttpGet]
-    public async Task<IActionResult> GetMetrics() =>
-        Ok(await _service.GetMetricsAsync());
+    public async Task<IActionResult> GetMetrics([FromQuery] string? branchId = null) =>
+        Ok(await _service.GetMetricsAsync(branchId));
 }

@@ -17,8 +17,16 @@ public class ReportService : IReportService
 
     public async Task<ReportSummaryDto> GetSummaryAsync(ReportFilterDto filter)
     {
-        var invoices = (await _uow.Invoices.GetByDateRangeAsync(filter.From, filter.To)).ToList();
-        var purchases = (await _uow.Purchases.GetByDateRangeAsync(filter.From, filter.To)).ToList();
+        var invoicesDb = (await _uow.Invoices.GetByDateRangeAsync(filter.From, filter.To)).ToList();
+        var purchasesDb = (await _uow.Purchases.GetByDateRangeAsync(filter.From, filter.To)).ToList();
+
+        var invoices = string.IsNullOrEmpty(filter.BranchId) || !Guid.TryParse(filter.BranchId, out var parsedBranchId)
+            ? invoicesDb
+            : invoicesDb.Where(i => i.BranchId == parsedBranchId).ToList();
+
+        var purchases = string.IsNullOrEmpty(filter.BranchId) || !Guid.TryParse(filter.BranchId, out parsedBranchId)
+            ? purchasesDb
+            : purchasesDb.Where(p => p.BranchId == parsedBranchId).ToList();
 
         var totalSales = invoices.Sum(i => i.Total);
         var totalPurchases = purchases.Sum(p => p.Total);
