@@ -38,8 +38,18 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null) =>
-        Ok(await _service.GetPagedAsync(page, pageSize, search));
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page = 1, 
+        [FromQuery] int pageSize = 10, 
+        [FromQuery] string? search = null,
+        [FromQuery] string[]? categoryId = null,
+        [FromQuery] decimal? minPrice = null,
+        [FromQuery] decimal? maxPrice = null,
+        [FromQuery] bool? lowStock = null,
+        [FromQuery] string? stockStatus = null,
+        [FromQuery] Guid? supplierId = null,
+        [FromQuery] Guid? branchId = null) =>
+        Ok(await _service.GetPagedAsync(page, pageSize, search, categoryId, minPrice, maxPrice, lowStock, stockStatus, supplierId, branchId));
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
@@ -62,6 +72,14 @@ public class ProductsController : ControllerBase
     {
         var result = await _service.UpdateAsync(id, dto);
         return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpPost("batch-stock")]
+    [Authorize(Policy = "RequireProductWrite")]
+    public async Task<IActionResult> BatchUpdateStock([FromBody] List<BatchStockUpdateDto> dtos)
+    {
+        var success = await _service.BatchUpdateStockAsync(dtos);
+        return success ? Ok() : BadRequest();
     }
 
     [HttpDelete("{id:guid}")]
