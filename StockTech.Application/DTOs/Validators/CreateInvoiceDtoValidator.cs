@@ -7,7 +7,6 @@ public class CreateInvoiceDtoValidator : AbstractValidator<CreateInvoiceDto>
 {
     public CreateInvoiceDtoValidator()
     {
-        RuleFor(x => x.ClientId).NotEmpty().WithMessage("El cliente es requerido.");
         RuleFor(x => x.TaxRate)
             .InclusiveBetween(0, 1)
             .WithMessage("El tax rate debe estar entre 0 y 1 (ej: 0.18 para 18%).");
