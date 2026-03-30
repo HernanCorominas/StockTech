@@ -48,7 +48,7 @@ public class UsersController : ControllerBase
             RoleId = dto.RoleId
         };
 
-        var created = await _userService.CreateAsync(user, dto.Password);
+        var created = await _userService.CreateAsync(user, dto.Password, dto.BranchId);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -65,7 +65,7 @@ public class UsersController : ControllerBase
             IsActive = dto.IsActive
         };
 
-        await _userService.UpdateAsync(user);
+        await _userService.UpdateAsync(user, dto.BranchId);
         return NoContent();
     }
 
@@ -101,6 +101,7 @@ public class UserCreateDto
     public string FullName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public Guid RoleId { get; set; }
+    public Guid? BranchId { get; set; }
 }
 
 public class UserUpdateDto
@@ -109,4 +110,5 @@ public class UserUpdateDto
     public string Email { get; set; } = string.Empty;
     public Guid RoleId { get; set; }
     public bool IsActive { get; set; }
+    public Guid? BranchId { get; set; }
 }

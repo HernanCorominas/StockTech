@@ -12,12 +12,24 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetByUsernameAsync(string username) =>
         await _ctx.Users
+            .IgnoreQueryFilters()
             .Include(u => u.Role)
-            .ThenInclude(r => r.Permissions)
-            .FirstOrDefaultAsync(u => u.Username == username && u.IsActive);
+                .ThenInclude(r => r.Permissions)
+            .Include(u => u.UserBranches)
+                .ThenInclude(ub => ub.Branch)
+            .Include(u => u.UserBranches)
+                .ThenInclude(ub => ub.Role)
+                    .ThenInclude(r => r.Permissions)
+            .FirstOrDefaultAsync(u => u.Username.ToLower() == username.ToLower() && u.IsActive);
 
     public async Task<User?> GetByIdAsync(Guid id) =>
-        await _ctx.Users.FindAsync(id);
+        await _ctx.Users
+            .Include(u => u.Role)
+            .Include(u => u.UserBranches)
+                .ThenInclude(ub => ub.Branch)
+            .Include(u => u.UserBranches)
+                .ThenInclude(ub => ub.Role)
+            .FirstOrDefaultAsync(u => u.Id == id);
 
     public async Task AddAsync(User user) => await _ctx.Users.AddAsync(user);
 
@@ -34,5 +46,12 @@ public class UserRepository : IUserRepository
     }
 
     public async Task<IEnumerable<User>> GetAllAsync() => 
-        await _ctx.Users.Include(u => u.Role).ThenInclude(r => r.Permissions).ToListAsync();
+        await _ctx.Users.AsNoTracking()
+            .Include(u => u.Role)
+                .ThenInclude(r => r.Permissions)
+            .Include(u => u.UserBranches)
+                .ThenInclude(ub => ub.Branch)
+            .Include(u => u.UserBranches)
+                .ThenInclude(ub => ub.Role)
+            .ToListAsync();
 }

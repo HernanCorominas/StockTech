@@ -11,7 +11,7 @@ public class ClientRepository : IClientRepository
     public ClientRepository(StockTechDbContext ctx) => _ctx = ctx;
 
     public async Task<IEnumerable<Client>> GetAllAsync() =>
-        await _ctx.Clients.Where(c => c.IsActive).OrderByDescending(c => c.CreatedAt).ToListAsync();
+        await _ctx.Clients.AsNoTracking().Where(c => c.IsActive).OrderByDescending(c => c.CreatedAt).ToListAsync();
 
     public async Task<Client?> GetByIdAsync(Guid id) =>
         await _ctx.Clients.FindAsync(id);

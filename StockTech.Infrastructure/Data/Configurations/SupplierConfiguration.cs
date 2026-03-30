@@ -16,8 +16,12 @@ public class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
         builder.Property(x => x.Phone).HasColumnName("phone").IsRequired().HasMaxLength(20);
         builder.Property(x => x.Email).HasColumnName("email").IsRequired().HasMaxLength(200);
         builder.Property(x => x.TaxId).HasColumnName("tax_id").IsRequired().HasMaxLength(20);
-        builder.Property(x => x.CreatedAt).HasColumnName("created_at");
+        builder.Property(x => x.BranchId).HasColumnName("branch_id").IsRequired();
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+
+        builder.HasOne(x => x.Branch)
+               .WithMany()
+               .HasForeignKey(x => x.BranchId);
 
         builder.HasMany(x => x.Purchases)
                .WithOne(p => p.Supplier)

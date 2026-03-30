@@ -11,13 +11,13 @@ public class PurchaseRepository : IPurchaseRepository
     public PurchaseRepository(StockTechDbContext ctx) => _ctx = ctx;
 
     public async Task<IEnumerable<Purchase>> GetAllAsync() =>
-        await _ctx.Purchases
+        await _ctx.Purchases.AsNoTracking()
             .Include(p => p.Items).ThenInclude(item => item.Product)
             .OrderByDescending(p => p.PurchaseDate)
             .ToListAsync();
 
     public async Task<IEnumerable<Purchase>> GetByDateRangeAsync(DateTime from, DateTime to) =>
-        await _ctx.Purchases
+        await _ctx.Purchases.AsNoTracking()
             .Include(p => p.Items).ThenInclude(item => item.Product)
             .Where(p => p.PurchaseDate >= from && p.PurchaseDate <= to)
             .OrderByDescending(p => p.PurchaseDate)

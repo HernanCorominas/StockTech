@@ -18,7 +18,11 @@ public class ClientConfiguration : IEntityTypeConfiguration<Client>
         builder.Property(x => x.Phone).HasColumnName("phone").HasMaxLength(20);
         builder.Property(x => x.Address).HasColumnName("address").HasMaxLength(500);
         builder.Property(x => x.IsActive).HasColumnName("is_active");
-        builder.Property(x => x.CreatedAt).HasColumnName("created_at");
+        builder.Property(x => x.BranchId).HasColumnName("branch_id").IsRequired();
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+
+        builder.HasOne(x => x.Branch)
+               .WithMany()
+               .HasForeignKey(x => x.BranchId);
     }
 }

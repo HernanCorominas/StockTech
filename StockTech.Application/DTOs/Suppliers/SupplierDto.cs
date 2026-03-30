@@ -5,7 +5,8 @@ public record CreateSupplierDto(
     string ContactName,
     string Phone,
     string Email,
-    string TaxId
+    string TaxId,
+    Guid? BranchId
 );
 
 public record SupplierDto(
@@ -15,5 +16,7 @@ public record SupplierDto(
     string Phone,
     string Email,
     string TaxId,
+    Guid? BranchId,
+    string? BranchName,
     DateTime CreatedAt
 );

@@ -25,6 +25,8 @@ public class JwtService : IJwtService
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
             new Claim(ClaimTypes.Role, user.Role.Name),
+            new Claim("BranchId", user.UserBranches?.FirstOrDefault()?.BranchId.ToString() ?? string.Empty),
+            new Claim("AuthorizedBranches", string.Join(",", user.UserBranches?.Select(ub => ub.BranchId.ToString()) ?? new List<string>())),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
@@ -33,6 +35,15 @@ public class JwtService : IJwtService
             foreach (var permission in user.Role.Permissions)
             {
                 claims.Add(new Claim("permission", permission.Name));
+            }
+        }
+
+        // Ensure Admin/SystemAdmin always have admin:* permission
+        if (user.Role.Name == "Admin" || user.Role.Name == "SystemAdmin")
+        {
+            if (user.Role.Permissions == null || !user.Role.Permissions.Any(p => p.Name == "admin:*"))
+            {
+                claims.Add(new Claim("permission", "admin:*"));
             }
         }
 

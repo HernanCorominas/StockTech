@@ -16,9 +16,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.FullName).HasColumnName("full_name").HasMaxLength(200);
         builder.Property(x => x.Email).HasColumnName("email").HasMaxLength(200);
         builder.Property(x => x.IsActive).HasColumnName("is_active");
-        
         // RBAC
-        builder.Property(x => x.RoleId).HasColumnName("role_id").IsRequired();
         builder.HasOne(x => x.Role).WithMany().HasForeignKey(x => x.RoleId);
 
         builder.Property(x => x.CreatedAt).HasColumnName("created_at");

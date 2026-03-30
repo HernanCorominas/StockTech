@@ -1,15 +1,19 @@
 using System.ComponentModel.DataAnnotations;
 using StockTech.Domain.Enums;
+using System.Collections.Generic;
 
 namespace StockTech.Application.DTOs.Invoices;
 
 public record CreateInvoiceItemDto(
     [Required] Guid ProductId,
-    [Range(1, int.MaxValue, ErrorMessage = "La cantidad debe ser mayor a cero.")] int Quantity
+    Guid? VariantId,
+    [Range(0.001, 1000000, ErrorMessage = "La cantidad debe ser mayor a cero.")] decimal Quantity
 );
 
 public record CreateInvoiceDto(
-    [Required] Guid ClientId,
+    Guid? ClientId,
+    string? CustomerName,    // For "on-the-fly" registration
+    string? CustomerDocument, // For "on-the-fly" registration
     Guid? BranchId,
     [Required, MinLength(1, ErrorMessage = "La factura debe tener al menos un item.")] List<CreateInvoiceItemDto> Items,
     [Range(0, 1, ErrorMessage = "Tax rate debe estar entre 0 y 1.")] decimal TaxRate,
@@ -20,8 +24,9 @@ public record CreateInvoiceDto(
 public record InvoiceItemDto(
     Guid Id,
     Guid ProductId,
+    Guid? VariantId,
     string ProductName,
-    int Quantity,
+    decimal Quantity,
     decimal UnitPrice,
     decimal LineTotal
 );
@@ -29,7 +34,7 @@ public record InvoiceItemDto(
 public record InvoiceDto(
     Guid Id,
     string InvoiceNumber,
-    Guid ClientId,
+    Guid? ClientId,
     string ClientName,
     string ClientDocument,
     Guid? BranchId,

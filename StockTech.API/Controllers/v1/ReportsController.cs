@@ -19,15 +19,21 @@ public class ReportsController : ControllerBase
     [HttpGet("summary")]
     public async Task<IActionResult> GetSummary([FromQuery] DateTime from, [FromQuery] DateTime to, [FromQuery] string? branchId = null)
     {
-        var result = await _service.GetSummaryAsync(new ReportFilterDto(from, to, branchId));
+        var fromUtc = DateTime.SpecifyKind(from, DateTimeKind.Utc);
+        var toUtc = DateTime.SpecifyKind(to.AddDays(1).AddTicks(-1), DateTimeKind.Utc);
+        
+        var result = await _service.GetSummaryAsync(new ReportFilterDto(fromUtc, toUtc, branchId));
         return Ok(result);
     }
 
     [HttpGet("export")]
     public async Task<IActionResult> ExportExcel([FromQuery] DateTime from, [FromQuery] DateTime to, [FromQuery] string? branchId = null)
     {
-        var bytes = await _service.ExportToExcelAsync(new ReportFilterDto(from, to, branchId));
-        var fileName = $"StockTech_Reporte_{from:yyyyMMdd}_{to:yyyyMMdd}.xlsx";
+        var fromUtc = DateTime.SpecifyKind(from, DateTimeKind.Utc);
+        var toUtc = DateTime.SpecifyKind(to.AddDays(1).AddTicks(-1), DateTimeKind.Utc);
+        
+        var bytes = await _service.ExportToExcelAsync(new ReportFilterDto(fromUtc, toUtc, branchId));
+        var fileName = $"StockTech_Reporte_{fromUtc:yyyyMMdd}_{toUtc:yyyyMMdd}.xlsx";
         return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
 }

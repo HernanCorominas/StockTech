@@ -17,6 +17,9 @@ public class DashboardController : ControllerBase
     public DashboardController(IDashboardService service) => _service = service;
 
     [HttpGet]
-    public async Task<IActionResult> GetMetrics([FromQuery] string? branchId = null) =>
-        Ok(await _service.GetMetricsAsync(branchId));
+    public async Task<IActionResult> GetMetrics([FromQuery] string? branchId = null)
+    {
+        var role = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
+        return Ok(await _service.GetMetricsAsync(branchId, role));
+    }
 }

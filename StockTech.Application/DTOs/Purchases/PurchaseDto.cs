@@ -1,9 +1,14 @@
 namespace StockTech.Application.DTOs.Purchases;
 
 public record CreatePurchaseItemDto(
-    Guid ProductId,
+    Guid? ProductId,
+    Guid? VariantId,
+    string? ProductName,
+    Guid? CategoryId,
+    string? SKU,
     int Quantity,
-    decimal UnitCost
+    decimal UnitCost,
+    decimal? TaxRate = 0
 );
 
 public record CreatePurchaseDto(
@@ -19,6 +24,8 @@ public record PurchaseItemDto(
     string ProductName,
     int Quantity,
     decimal UnitCost,
+    decimal TaxRate,
+    decimal TaxAmount,
     decimal LineTotal
 );
 
@@ -30,6 +37,8 @@ public record PurchaseDto(
     Guid? BranchId,
     string? BranchName,
     DateTime PurchaseDate,
+    decimal SubTotal,
+    decimal TaxTotal,
     decimal Total,
     string? Notes,
     List<PurchaseItemDto> Items,

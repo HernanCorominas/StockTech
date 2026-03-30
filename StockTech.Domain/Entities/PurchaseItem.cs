@@ -8,5 +8,7 @@ public class PurchaseItem : BaseEntity
     public Product Product { get; set; } = null!;
     public int Quantity { get; set; }
     public decimal UnitCost { get; set; }
+    public decimal TaxRate { get; set; }
+    public decimal TaxAmount { get; set; }
     public decimal LineTotal { get; set; }
 }

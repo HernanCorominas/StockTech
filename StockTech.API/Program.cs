@@ -11,14 +11,17 @@ using StockTech.Domain.Interfaces;
 using StockTech.Infrastructure.Data;
 using StockTech.Infrastructure.Persistence;
 using StockTech.Infrastructure.Services;
+using StockTech.Infrastructure.Logging;
 using System.Text;
-using StockTech.API.Hubs;
-using StockTech.API.Services;
+using StockTech.Application.Hubs;
 using Serilog;
 using Asp.Versioning;
 using StockTech.API.Middlewares;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using StockTech.Application;
+using StockTech.Infrastructure;
+using StockTech.API;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,126 +31,13 @@ builder.Host.UseSerilog((context, configuration) =>
                  .WriteTo.Console()
                  .Enrich.FromLogContext());
 
-// ─── Database ────────────────────────────────────────────────────────────────
-builder.Services.AddDbContext<StockTechDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
-        npgsql => npgsql.EnableRetryOnFailure(3)));
-
-// ─── Repositories & UnitOfWork ───────────────────────────────────────────────
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-// ─── Infrastructure Services ──────────────────────────────────────────────────
-builder.Services.AddScoped<IJwtService, JwtService>();
-builder.Services.AddScoped<IExcelExportService, ExcelExportService>();
-builder.Services.AddScoped<IExportService, ExportService>();
-
-// ─── Application Services ────────────────────────────────────────────────────
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IClientService, ClientService>();
-builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<IInvoiceService, InvoiceService>();
-builder.Services.AddScoped<IPurchaseService, PurchaseService>();
-builder.Services.AddScoped<ISupplierService, SupplierService>();
-builder.Services.AddScoped<IBranchService, BranchService>();
-builder.Services.AddScoped<IDashboardService, DashboardService>();
-builder.Services.AddScoped<IReportService, ReportService>();
-builder.Services.AddScoped<IInventoryService, InventoryService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddSignalR();
-
-// ─── JWT Authentication ───────────────────────────────────────────────────────
-var jwtKey = builder.Configuration["Jwt:Key"]!;
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
-        };
-    });
-
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("RequireProductWrite", policy => policy.RequireClaim("permission", "product:write"));
-    options.AddPolicy("RequireProductDelete", policy => policy.RequireClaim("permission", "product:delete"));
-    options.AddPolicy("RequireInvoiceCreate", policy => policy.RequireClaim("permission", "invoice:create"));
-    options.AddPolicy("RequireUserManage", policy => policy.RequireClaim("permission", "user:manage"));
-    options.AddPolicy("RequireUserRead", policy => policy.RequireClaim("permission", "user:read"));
-});
+// ─── Clean Architecture DI ───────────────────────────────────────────────────
+builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddApplicationServices();
+builder.Services.AddApiServices(builder.Configuration);
 
 // ─── Audit.NET Configuration ──────────────────────────────────────────────────
-Audit.Core.Configuration.Setup()
-    .UseEntityFramework(_ => _
-        .AuditTypeMapper(t => typeof(AuditLog))
-        .AuditEntityAction<AuditLog>((ev, ent, auditEntity) =>
-        {
-            auditEntity.TableName = ent.Table;
-            auditEntity.Action = ent.Action;
-            auditEntity.KeyValues = JsonSerializer.Serialize(ent.PrimaryKey);
-            auditEntity.OldValues = ent.Action == "Update" ? JsonSerializer.Serialize(ent.Changes) : null;
-            auditEntity.NewValues = (ent.Action == "Insert" || ent.Action == "Update") ? JsonSerializer.Serialize(ent.ColumnValues) : null;
-            auditEntity.User = ev.CustomFields.ContainsKey("User") ? ev.CustomFields["User"].ToString() : ev.Environment.UserName;
-            auditEntity.CreatedAt = DateTime.UtcNow;
-            auditEntity.UpdatedAt = DateTime.UtcNow;
-        })
-        .IgnoreMatchedProperties(true));
-
-// ─── CORS ────────────────────────────────────────────────────────────────────
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend", policy =>
-        policy.WithOrigins("http://localhost:4200", "http://localhost:4201", "https://stocktechfrontend.vercel.app")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials());
-});
-
-// ─── Controllers & Swagger ───────────────────────────────────────────────────
-builder.Services.AddControllers();
-builder.Services.AddFluentValidationAutoValidation()
-                .AddValidatorsFromAssembly(typeof(StockTech.Application.Interfaces.IAuthService).Assembly);
-
-builder.Services.AddApiVersioning(options =>
-{
-    options.DefaultApiVersion = new ApiVersion(1, 0);
-    options.AssumeDefaultVersionWhenUnspecified = true;
-    options.ReportApiVersions = true;
-}).AddApiExplorer(options =>
-{
-    options.GroupNameFormat = "'v'VVV";
-    options.SubstituteApiVersionInUrl = true;
-});
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "StockTech API", Version = "v1" });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = "JWT Authorization header. Example: 'Bearer {token}'",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
-            },
-            Array.Empty<string>()
-        }
-    });
-});
+builder.Services.ConfigureAudit();
 
 var app = builder.Build();
 
@@ -163,9 +53,27 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseCors("AllowFrontend");
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<TenantMiddleware>();
 app.MapControllers();
 app.MapHub<NotificationHub>("/notificationHub");
+
+// ─── Data Seeding ─────────────────────────────────────────────────────────────
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<StockTechDbContext>();
+        await DbInitializer.SeedAsync(context);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ocurrió un error al sembrar la base de datos.");
+    }
+}
 
 app.Run();

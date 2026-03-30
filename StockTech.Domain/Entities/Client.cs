@@ -1,8 +1,10 @@
 using StockTech.Domain.Enums;
 
+using StockTech.Domain.Common;
+
 namespace StockTech.Domain.Entities;
 
-public class Client : BaseEntity
+public class Client : BaseEntity, ITenantEntity
 {
     public string Name { get; set; } = string.Empty;
     public string Document { get; set; } = string.Empty; // Cédula or RNC
@@ -14,4 +16,7 @@ public class Client : BaseEntity
 
     // Navigation
     public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
+
+    public Guid? BranchId { get; set; }
+    public Branch Branch { get; set; } = null!;
 }

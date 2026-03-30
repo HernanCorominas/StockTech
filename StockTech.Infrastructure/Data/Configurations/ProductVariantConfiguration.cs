@@ -25,10 +25,18 @@ namespace StockTech.Infrastructure.Data.Configurations
             builder.Property(x => x.Price)
                 .HasPrecision(18, 2);
 
+            builder.Property(x => x.BranchId)
+                .HasColumnName("branch_id")
+                .IsRequired();
+
             builder.HasOne(x => x.Product)
                 .WithMany(x => x.Variants)
                 .HasForeignKey(x => x.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(x => x.Branch)
+                .WithMany()
+                .HasForeignKey(x => x.BranchId);
 
             builder.HasIndex(x => x.SKU).IsUnique();
         }

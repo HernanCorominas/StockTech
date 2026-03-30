@@ -13,7 +13,7 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         builder.Property(x => x.Id).HasColumnName("id");
         builder.Property(x => x.InvoiceNumber).HasColumnName("invoice_number").IsRequired().HasMaxLength(20);
         builder.Property(x => x.ClientId).HasColumnName("client_id");
-        builder.Property(x => x.BranchId).HasColumnName("branch_id");
+        builder.Property(x => x.BranchId).HasColumnName("branch_id").IsRequired();
         builder.Property(x => x.InvoiceDate).HasColumnName("invoice_date");
         builder.Property(x => x.Subtotal).HasColumnName("subtotal").HasColumnType("decimal(18,2)");
         builder.Property(x => x.TaxRate).HasColumnName("tax_rate").HasColumnType("decimal(5,2)");

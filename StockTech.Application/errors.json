@@ -1,0 +1,226 @@
+{
+  "$schema": "http://json.schemastore.org/sarif-1.0.0",
+  "version": "1.0.0",
+  "runs": [
+    {
+      "tool": {
+        "name": "Compilador de Microsoft (R) Visual C#",
+        "version": "4.12.0.0",
+        "fileVersion": "4.12.0-3.24570.6 (913fb4ec)",
+        "semanticVersion": "4.12.0",
+        "language": "es-MX"
+      },
+      "results": [
+        {
+          "ruleId": "CS1503",
+          "level": "error",
+          "message": "Argumento 4: no se puede convertir de 'System.Guid?' a 'System.Guid'",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/braul/OneDrive/Escritorio/StockTech/backend/StockTech.Application/Services/AuthService.cs",
+                "region": {
+                  "startLine": 32,
+                  "startColumn": 25,
+                  "endLine": 32,
+                  "endColumn": 40
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS8604",
+          "level": "warning",
+          "message": "Posible argumento de referencia nulo para el parámetro \"Address\" en \"BranchDto.BranchDto(Guid Id, string Name, string Address, string Phone, string ManagerName, DateTime CreatedAt)\".",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/braul/OneDrive/Escritorio/StockTech/backend/StockTech.Application/Services/BranchService.cs",
+                "region": {
+                  "startLine": 103,
+                  "startColumn": 9,
+                  "endLine": 103,
+                  "endColumn": 18
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8604",
+          "level": "warning",
+          "message": "Posible argumento de referencia nulo para el parámetro \"Phone\" en \"BranchDto.BranchDto(Guid Id, string Name, string Address, string Phone, string ManagerName, DateTime CreatedAt)\".",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/braul/OneDrive/Escritorio/StockTech/backend/StockTech.Application/Services/BranchService.cs",
+                "region": {
+                  "startLine": 104,
+                  "startColumn": 9,
+                  "endLine": 104,
+                  "endColumn": 16
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8604",
+          "level": "warning",
+          "message": "Posible argumento de referencia nulo para el parámetro \"ManagerName\" en \"BranchDto.BranchDto(Guid Id, string Name, string Address, string Phone, string ManagerName, DateTime CreatedAt)\".",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/braul/OneDrive/Escritorio/StockTech/backend/StockTech.Application/Services/BranchService.cs",
+                "region": {
+                  "startLine": 105,
+                  "startColumn": 9,
+                  "endLine": 105,
+                  "endColumn": 22
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8629",
+          "level": "warning",
+          "message": "Un tipo que acepta valores NULL puede ser nulo.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/braul/OneDrive/Escritorio/StockTech/backend/StockTech.Application/Services/ProductService.cs",
+                "region": {
+                  "startLine": 107,
+                  "startColumn": 93,
+                  "endLine": 107,
+                  "endColumn": 97
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Es preferible comparar \"Count\" con 0 en lugar de usar \"Any()\", tanto por claridad como por rendimiento.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/braul/OneDrive/Escritorio/StockTech/backend/StockTech.Application/DTOs/Validators/CreateInvoiceDtoValidator.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 45,
+                  "endLine": 17,
+                  "endColumn": 56
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Es preferible comparar \"Count\" con 0 en lugar de usar \"Any()\", tanto por claridad como por rendimiento.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/braul/OneDrive/Escritorio/StockTech/backend/StockTech.Application/Services/ProductService.cs",
+                "region": {
+                  "startLine": 59,
+                  "startColumn": 41,
+                  "endLine": 59,
+                  "endColumn": 59
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        }
+      ],
+      "rules": {
+        "CA1860": {
+          "id": "CA1860",
+          "shortDescription": "Evitar usar el método de extensión \"Enumerable.Any()\"",
+          "fullDescription": "Es preferible usar las propiedades \"IsEmpty\", \"Count\" o \"Length\", si hay alguna disponible, en lugar de llamar a \"Enumerable.Any()\". La intención es más clara y tiene un mejor rendimiento que usar el método de extensión \"Enumerable.Any()\".",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1860",
+          "properties": {
+            "category": "Performance",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Telemetry",
+              "EnabledRuleInAggressiveMode"
+            ]
+          }
+        },
+        "CS1503": {
+          "id": "CS1503",
+          "defaultLevel": "error",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS1503)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry",
+              "NotConfigurable"
+            ]
+          }
+        },
+        "CS8604": {
+          "id": "CS8604",
+          "shortDescription": "Posible argumento de referencia nulo",
+          "defaultLevel": "warning",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS8604)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry"
+            ]
+          }
+        },
+        "CS8629": {
+          "id": "CS8629",
+          "shortDescription": "Un tipo que acepta valores NULL puede ser nulo.",
+          "defaultLevel": "warning",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS8629)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

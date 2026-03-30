@@ -18,6 +18,10 @@ public class InvoiceItemConfiguration : IEntityTypeConfiguration<InvoiceItem>
         builder.Property(x => x.LineTotal).HasColumnName("line_total").HasColumnType("decimal(18,2)");
         builder.Property(x => x.CreatedAt).HasColumnName("created_at");
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+        
+        // Temporarily ignore VariantId until it's added to the database
+        builder.Ignore(x => x.VariantId);
+
         builder.HasOne(x => x.Invoice).WithMany(i => i.Items).HasForeignKey(x => x.InvoiceId);
         builder.HasOne(x => x.Product).WithMany(p => p.InvoiceItems).HasForeignKey(x => x.ProductId);
     }

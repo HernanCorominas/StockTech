@@ -52,10 +52,18 @@ public class InventoryTransactionConfiguration : IEntityTypeConfiguration<Invent
         builder.Property(x => x.PurchaseId)
             .HasColumnName("purchase_id");
 
+        builder.Property(x => x.BranchId)
+            .HasColumnName("branch_id")
+            .IsRequired();
+
         // Relationships
         builder.HasOne(x => x.Product)
             .WithMany()
             .HasForeignKey(x => x.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.Branch)
+            .WithMany()
+            .HasForeignKey(x => x.BranchId);
     }
 }

@@ -9,4 +9,6 @@ public interface IInvoiceService
     Task<PagedResult<InvoiceDto>> GetPagedAsync(int page, int pageSize, string? search);
     Task<InvoiceDto?> GetByIdAsync(Guid id);
     Task<InvoiceDto> CreateAsync(CreateInvoiceDto dto);
+    Task CancelAsync(Guid id); // Cancels invoice and reverses stock
+    Task<string> GetInvoicePdfAsync(Guid id); // Retorna la URL del PDF generado
 }

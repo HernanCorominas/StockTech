@@ -25,10 +25,23 @@ public record CreateProductDto(
     string? SKU,
     decimal Price,
     decimal Cost,
-    int Stock,
     int MinStock,
-    string? Category,
+    Guid? CategoryId,
+    int? InitialStock = 0,
+    Guid? BranchId = null,
+    Guid? SupplierId = null,
+    string? Image = null,
     List<CreateProductVariantDto>? Variants = null
+);
+
+public record UpdateProductVariantDto(
+    Guid? Id,
+    string? Size,
+    string? Color,
+    string SKU,
+    decimal Price,
+    int Stock,
+    bool IsActive
 );
 
 public record UpdateProductDto(
@@ -38,9 +51,12 @@ public record UpdateProductDto(
     decimal Price,
     decimal Cost,
     int MinStock,
-    string? Category,
+    Guid? CategoryId,
     bool IsActive,
-    List<CreateProductVariantDto>? Variants = null
+    Guid? BranchId = null,
+    Guid? SupplierId = null,
+    string? Image = null,
+    List<UpdateProductVariantDto>? Variants = null
 );
 
 public record ProductDto(
@@ -52,9 +68,14 @@ public record ProductDto(
     decimal Cost,
     int Stock,
     int MinStock,
-    string? Category,
+    Guid? CategoryId,
+    string? CategoryName,
     bool IsActive,
     bool LowStock,
+    Guid BranchId,
+    Guid? SupplierId,
+    string? SupplierName,
+    string? Image,
     DateTime CreatedAt,
     List<ProductVariantDto> Variants
 );

@@ -1,3 +1,5 @@
+using StockTech.Domain.Common;
+
 namespace StockTech.Domain.Entities;
 
 public class User : BaseEntity
@@ -8,7 +10,9 @@ public class User : BaseEntity
     public string? Email { get; set; }
     public bool IsActive { get; set; } = true;
 
-    // RBAC
+    // RBAC & Multi-Tenancy
     public Guid RoleId { get; set; }
     public Role Role { get; set; } = null!;
+
+    public ICollection<UserBranch> UserBranches { get; set; } = new List<UserBranch>();
 }

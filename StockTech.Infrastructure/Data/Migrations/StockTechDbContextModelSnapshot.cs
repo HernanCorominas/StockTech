@@ -37,6 +37,51 @@ namespace StockTech.Infrastructure.Data.Migrations
                     b.ToTable("role_permissions", (string)null);
                 });
 
+            modelBuilder.Entity("StockTech.Domain.Entities.ActivityLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("category");
+
+                    b.Property<Guid?>("CorrelationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("correlation_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Details")
+                        .HasColumnType("text")
+                        .HasColumnName("details");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("message");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("activity_logs", (string)null);
+                });
+
             modelBuilder.Entity("StockTech.Domain.Entities.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -50,11 +95,16 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("action");
 
+                    b.Property<Guid?>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
                     b.Property<string>("KeyValues")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("key_values");
 
@@ -76,12 +126,14 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<string>("User")
+                    b.Property<string>("UserId")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("user");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
 
                     b.ToTable("audit_logs", (string)null);
                 });
@@ -103,11 +155,13 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("ManagerName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("manager_name");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<Guid?>("ManagerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("manager_id");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -127,7 +181,77 @@ namespace StockTech.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ManagerId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("branches", (string)null);
+                });
+
+            modelBuilder.Entity("StockTech.Domain.Entities.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("fb8d4fae-7dec-11d0-a765-00a0c91e6bf6"),
+                            CreatedAt = new DateTime(2026, 3, 29, 19, 49, 17, 543, DateTimeKind.Utc).AddTicks(1062),
+                            Description = "Productos de cuidado personal y belleza",
+                            IsActive = true,
+                            Name = "Belleza",
+                            UpdatedAt = new DateTime(2026, 3, 29, 19, 49, 17, 543, DateTimeKind.Utc).AddTicks(1067)
+                        },
+                        new
+                        {
+                            Id = new Guid("fa2f082d-72a2-b281-0081-8b9cad0e1f20"),
+                            CreatedAt = new DateTime(2026, 3, 29, 19, 49, 17, 543, DateTimeKind.Utc).AddTicks(1099),
+                            Description = "Equipos electrónicos y accesorios",
+                            IsActive = true,
+                            Name = "Tecnología",
+                            UpdatedAt = new DateTime(2026, 3, 29, 19, 49, 17, 543, DateTimeKind.Utc).AddTicks(1100)
+                        },
+                        new
+                        {
+                            Id = new Guid("f3b8d1b6-0b3b-4b1a-9c1a-1a2b3c4d5e6f"),
+                            CreatedAt = new DateTime(2026, 3, 29, 19, 49, 17, 543, DateTimeKind.Utc).AddTicks(1134),
+                            Description = "Complementos y accesorios varios",
+                            IsActive = true,
+                            Name = "Accesorios",
+                            UpdatedAt = new DateTime(2026, 3, 29, 19, 49, 17, 543, DateTimeKind.Utc).AddTicks(1135)
+                        },
+                        new
+                        {
+                            Id = new Guid("fb4c9e2c-71c4-5c2b-ac2b-2b3c4d5e6f7a"),
+                            CreatedAt = new DateTime(2026, 3, 29, 19, 49, 17, 543, DateTimeKind.Utc).AddTicks(1140),
+                            Description = "Prendas de vestir y calzado",
+                            IsActive = true,
+                            Name = "Ropa",
+                            UpdatedAt = new DateTime(2026, 3, 29, 19, 49, 17, 543, DateTimeKind.Utc).AddTicks(1140)
+                        });
                 });
 
             modelBuilder.Entity("StockTech.Domain.Entities.Client", b =>
@@ -142,13 +266,17 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("address");
 
+                    b.Property<Guid?>("BranchId")
+                        .IsRequired()
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
                     b.Property<int>("ClientType")
                         .HasColumnType("integer")
                         .HasColumnName("client_type");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Document")
                         .IsRequired()
@@ -182,6 +310,8 @@ namespace StockTech.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BranchId");
+
                     b.ToTable("clients", (string)null);
                 });
 
@@ -191,6 +321,11 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<Guid?>("BranchId")
+                        .IsRequired()
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -238,9 +373,21 @@ namespace StockTech.Infrastructure.Data.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("VariantId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("BranchId");
+
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("VariantId");
 
                     b.ToTable("inventory_transactions", (string)null);
                 });
@@ -253,6 +400,7 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .HasColumnName("id");
 
                     b.Property<Guid?>("BranchId")
+                        .IsRequired()
                         .HasColumnType("uuid")
                         .HasColumnName("branch_id");
 
@@ -355,6 +503,51 @@ namespace StockTech.Infrastructure.Data.Migrations
                     b.ToTable("invoice_items", (string)null);
                 });
 
+            modelBuilder.Entity("StockTech.Domain.Entities.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsRead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_read");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("message");
+
+                    b.Property<string>("Type")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("type");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("notifications", (string)null);
+                });
+
             modelBuilder.Entity("StockTech.Domain.Entities.Permission", b =>
                 {
                     b.Property<Guid>("Id")
@@ -367,6 +560,7 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)")
                         .HasColumnName("description");
@@ -396,29 +590,35 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("Category")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("category");
+                    b.Property<Guid?>("BranchId")
+                        .IsRequired()
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_id");
 
                     b.Property<decimal>("Cost")
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("cost");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text")
                         .HasColumnName("description");
 
+                    b.Property<string>("Image")
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
-                    b.Property<int>("MinStock")
-                        .HasColumnType("integer")
+                    b.Property<decimal>("MinStock")
+                        .HasColumnType("numeric")
                         .HasColumnName("min_stock");
 
                     b.Property<string>("Name")
@@ -436,9 +636,16 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("sku");
 
-                    b.Property<int>("Stock")
-                        .HasColumnType("integer")
+                    b.Property<decimal>("Stock")
+                        .HasColumnType("numeric")
                         .HasColumnName("stock");
+
+                    b.Property<Guid?>("SupplierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("supplier_id");
+
+                    b.Property<decimal>("TaxRate")
+                        .HasColumnType("numeric");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -452,6 +659,15 @@ namespace StockTech.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("SKU")
+                        .IsUnique();
+
+                    b.HasIndex("SupplierId");
+
                     b.ToTable("products", (string)null);
                 });
 
@@ -460,6 +676,11 @@ namespace StockTech.Infrastructure.Data.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<Guid?>("BranchId")
+                        .IsRequired()
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
 
                     b.Property<string>("Color")
                         .HasMaxLength(30)
@@ -471,8 +692,8 @@ namespace StockTech.Infrastructure.Data.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("MinStock")
-                        .HasColumnType("integer");
+                    b.Property<decimal>("MinStock")
+                        .HasColumnType("numeric");
 
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
@@ -490,13 +711,15 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
-                    b.Property<int>("Stock")
-                        .HasColumnType("integer");
+                    b.Property<decimal>("Stock")
+                        .HasColumnType("numeric");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
 
                     b.HasIndex("ProductId");
 
@@ -514,6 +737,7 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .HasColumnName("id");
 
                     b.Property<Guid?>("BranchId")
+                        .IsRequired()
                         .HasColumnType("uuid")
                         .HasColumnName("branch_id");
 
@@ -535,9 +759,15 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("purchase_number");
 
+                    b.Property<decimal>("SubTotal")
+                        .HasColumnType("numeric");
+
                     b.Property<Guid?>("SupplierId")
                         .HasColumnType("uuid")
                         .HasColumnName("supplier_id");
+
+                    b.Property<decimal>("TaxTotal")
+                        .HasColumnType("numeric");
 
                     b.Property<decimal>("Total")
                         .HasColumnType("decimal(18,2)")
@@ -583,6 +813,12 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("quantity");
 
+                    b.Property<decimal>("TaxAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("TaxRate")
+                        .HasColumnType("numeric");
+
                     b.Property<decimal>("UnitCost")
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("unit_cost");
@@ -607,6 +843,10 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<Guid?>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -628,6 +868,8 @@ namespace StockTech.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BranchId");
+
                     b.HasIndex("Name")
                         .IsUnique();
 
@@ -641,6 +883,11 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<Guid?>("BranchId")
+                        .IsRequired()
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
                     b.Property<string>("ContactName")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -648,8 +895,7 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .HasColumnName("contact_name");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -681,7 +927,47 @@ namespace StockTech.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BranchId");
+
                     b.ToTable("suppliers", (string)null);
+                });
+
+            modelBuilder.Entity("StockTech.Domain.Entities.SystemSetting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key", "BranchId")
+                        .IsUnique();
+
+                    b.ToTable("SystemSettings");
                 });
 
             modelBuilder.Entity("StockTech.Domain.Entities.User", b =>
@@ -715,8 +1001,7 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .HasColumnName("password_hash");
 
                     b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("role_id");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -738,6 +1023,32 @@ namespace StockTech.Infrastructure.Data.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("StockTech.Domain.Entities.UserBranch", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("role_id");
+
+                    b.HasKey("UserId", "BranchId");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("user_branches", (string)null);
+                });
+
             modelBuilder.Entity("PermissionRole", b =>
                 {
                     b.HasOne("StockTech.Domain.Entities.Permission", null)
@@ -753,22 +1064,83 @@ namespace StockTech.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("StockTech.Domain.Entities.ActivityLog", b =>
+                {
+                    b.HasOne("StockTech.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("StockTech.Domain.Entities.AuditLog", b =>
+                {
+                    b.HasOne("StockTech.Domain.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId");
+
+                    b.Navigation("Branch");
+                });
+
+            modelBuilder.Entity("StockTech.Domain.Entities.Branch", b =>
+                {
+                    b.HasOne("StockTech.Domain.Entities.User", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId");
+
+                    b.Navigation("Manager");
+                });
+
+            modelBuilder.Entity("StockTech.Domain.Entities.Client", b =>
+                {
+                    b.HasOne("StockTech.Domain.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+                });
+
             modelBuilder.Entity("StockTech.Domain.Entities.InventoryTransaction", b =>
                 {
+                    b.HasOne("StockTech.Domain.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("StockTech.Domain.Entities.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("StockTech.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.HasOne("StockTech.Domain.Entities.ProductVariant", "Variant")
+                        .WithMany()
+                        .HasForeignKey("VariantId");
+
+                    b.Navigation("Branch");
+
                     b.Navigation("Product");
+
+                    b.Navigation("User");
+
+                    b.Navigation("Variant");
                 });
 
             modelBuilder.Entity("StockTech.Domain.Entities.Invoice", b =>
                 {
                     b.HasOne("StockTech.Domain.Entities.Branch", "Branch")
                         .WithMany("Invoices")
-                        .HasForeignKey("BranchId");
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("StockTech.Domain.Entities.Client", "Client")
                         .WithMany("Invoices")
@@ -800,13 +1172,46 @@ namespace StockTech.Infrastructure.Data.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("StockTech.Domain.Entities.Product", b =>
+                {
+                    b.HasOne("StockTech.Domain.Entities.Branch", "Branch")
+                        .WithMany("Products")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StockTech.Domain.Entities.Category", "Category")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("StockTech.Domain.Entities.Supplier", "Supplier")
+                        .WithMany("Products")
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Supplier");
+                });
+
             modelBuilder.Entity("StockTech.Domain.Entities.ProductVariant", b =>
                 {
+                    b.HasOne("StockTech.Domain.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("StockTech.Domain.Entities.Product", "Product")
                         .WithMany("Variants")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Branch");
 
                     b.Navigation("Product");
                 });
@@ -815,7 +1220,9 @@ namespace StockTech.Infrastructure.Data.Migrations
                 {
                     b.HasOne("StockTech.Domain.Entities.Branch", "Branch")
                         .WithMany("Purchases")
-                        .HasForeignKey("BranchId");
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("StockTech.Domain.Entities.Supplier", "Supplier")
                         .WithMany("Purchases")
@@ -845,6 +1252,26 @@ namespace StockTech.Infrastructure.Data.Migrations
                     b.Navigation("Purchase");
                 });
 
+            modelBuilder.Entity("StockTech.Domain.Entities.Role", b =>
+                {
+                    b.HasOne("StockTech.Domain.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId");
+
+                    b.Navigation("Branch");
+                });
+
+            modelBuilder.Entity("StockTech.Domain.Entities.Supplier", b =>
+                {
+                    b.HasOne("StockTech.Domain.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+                });
+
             modelBuilder.Entity("StockTech.Domain.Entities.User", b =>
                 {
                     b.HasOne("StockTech.Domain.Entities.Role", "Role")
@@ -856,11 +1283,47 @@ namespace StockTech.Infrastructure.Data.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("StockTech.Domain.Entities.UserBranch", b =>
+                {
+                    b.HasOne("StockTech.Domain.Entities.Branch", "Branch")
+                        .WithMany("UserBranches")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StockTech.Domain.Entities.Role", "Role")
+                        .WithMany("UserBranches")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StockTech.Domain.Entities.User", "User")
+                        .WithMany("UserBranches")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("StockTech.Domain.Entities.Branch", b =>
                 {
                     b.Navigation("Invoices");
 
+                    b.Navigation("Products");
+
                     b.Navigation("Purchases");
+
+                    b.Navigation("UserBranches");
+                });
+
+            modelBuilder.Entity("StockTech.Domain.Entities.Category", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("StockTech.Domain.Entities.Client", b =>
@@ -887,9 +1350,21 @@ namespace StockTech.Infrastructure.Data.Migrations
                     b.Navigation("Items");
                 });
 
+            modelBuilder.Entity("StockTech.Domain.Entities.Role", b =>
+                {
+                    b.Navigation("UserBranches");
+                });
+
             modelBuilder.Entity("StockTech.Domain.Entities.Supplier", b =>
                 {
+                    b.Navigation("Products");
+
                     b.Navigation("Purchases");
+                });
+
+            modelBuilder.Entity("StockTech.Domain.Entities.User", b =>
+                {
+                    b.Navigation("UserBranches");
                 });
 #pragma warning restore 612, 618
         }

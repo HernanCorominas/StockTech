@@ -11,8 +11,13 @@ public class InventoryTransactionRepository : IInventoryTransactionRepository
     public InventoryTransactionRepository(StockTechDbContext ctx) => _ctx = ctx;
 
     public async Task<IEnumerable<InventoryTransaction>> GetByProductIdAsync(Guid productId) =>
-        await _ctx.InventoryTransactions
+        await _ctx.InventoryTransactions.AsNoTracking()
             .Where(t => t.ProductId == productId)
+            .OrderByDescending(t => t.TransactionDate)
+            .ToListAsync();
+
+    public async Task<IEnumerable<InventoryTransaction>> GetAllAsync() =>
+        await _ctx.InventoryTransactions.AsNoTracking()
             .OrderByDescending(t => t.TransactionDate)
             .ToListAsync();
 

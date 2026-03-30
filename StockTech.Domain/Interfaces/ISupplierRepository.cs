@@ -7,6 +7,7 @@ public interface ISupplierRepository
     Task<IEnumerable<Supplier>> GetAllAsync();
     Task<Supplier?> GetByIdAsync(Guid id);
     Task AddAsync(Supplier supplier);
-    void Update(Supplier supplier);
-    void Delete(Supplier supplier);
+    Task<Supplier?> GetByNameAsync(string name);
+    Task UpdateAsync(Supplier supplier);
+    Task DeleteAsync(Supplier supplier);
 }

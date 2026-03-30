@@ -54,4 +54,29 @@ public class InvoicesController : ControllerBase
         var result = await _service.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
+
+    [HttpPatch("{id:guid}/cancel")]
+    public async Task<IActionResult> Cancel(Guid id)
+    {
+        try
+        {
+            await _service.CancelAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+    }
+
+    [HttpGet("{id:guid}/download")]
+    public async Task<IActionResult> DownloadPdf(Guid id)
+    {
+        var url = await _service.GetInvoicePdfAsync(id);
+        return Ok(new { url });
+    }
 }

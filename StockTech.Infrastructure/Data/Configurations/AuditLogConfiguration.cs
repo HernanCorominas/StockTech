@@ -16,7 +16,11 @@ public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
         builder.Property(x => x.KeyValues).HasColumnName("key_values");
         builder.Property(x => x.OldValues).HasColumnName("old_values");
         builder.Property(x => x.NewValues).HasColumnName("new_values");
-        builder.Property(x => x.User).HasColumnName("user").HasMaxLength(100);
+        builder.Property(x => x.UserId).HasColumnName("user").HasMaxLength(100);
+        builder.Property(x => x.BranchId).HasColumnName("branch_id");
+        
+        builder.HasOne(x => x.Branch).WithMany().HasForeignKey(x => x.BranchId);
+
         builder.Property(x => x.CreatedAt).HasColumnName("created_at");
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
     }

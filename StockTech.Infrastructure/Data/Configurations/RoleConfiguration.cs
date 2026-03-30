@@ -15,6 +15,11 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
         builder.Property(x => x.Description).HasColumnName("description").HasMaxLength(250);
         builder.Property(x => x.CreatedAt).HasColumnName("created_at");
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+        builder.Property(x => x.BranchId).HasColumnName("branch_id");
+
+        builder.HasOne(x => x.Branch)
+               .WithMany()
+               .HasForeignKey(x => x.BranchId);
 
         builder.HasIndex(x => x.Name).IsUnique();
 

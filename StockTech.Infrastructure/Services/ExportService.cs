@@ -37,7 +37,7 @@ public class ExportService : IExportService
         {
             sheet.Cell(row, 1).Value = p.Name;
             sheet.Cell(row, 2).Value = p.SKU ?? string.Empty;
-            sheet.Cell(row, 3).Value = p.Category ?? string.Empty;
+            sheet.Cell(row, 3).Value = p.CategoryName ?? string.Empty;
             sheet.Cell(row, 4).Value = (double)p.Price;
             sheet.Cell(row, 5).Value = p.Stock;
             sheet.Cell(row, 6).Value = p.MinStock;

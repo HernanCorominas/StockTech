@@ -41,10 +41,16 @@ public class AuditLogRepository : IAuditLogRepository
             query = query.Where(l => l.Action == action);
 
         if (start.HasValue)
-            query = query.Where(l => l.CreatedAt >= start.Value);
+        {
+            var utcStart = DateTime.SpecifyKind(start.Value, DateTimeKind.Utc);
+            query = query.Where(l => l.CreatedAt >= utcStart);
+        }
 
         if (end.HasValue)
-            query = query.Where(l => l.CreatedAt <= end.Value);
+        {
+            var utcEnd = DateTime.SpecifyKind(end.Value, DateTimeKind.Utc);
+            query = query.Where(l => l.CreatedAt <= utcEnd);
+        }
 
         return await query
             .OrderByDescending(l => l.CreatedAt)
@@ -68,10 +74,16 @@ public class AuditLogRepository : IAuditLogRepository
             query = query.Where(l => l.Action == action);
 
         if (start.HasValue)
-            query = query.Where(l => l.CreatedAt >= start.Value);
+        {
+            var utcStart = DateTime.SpecifyKind(start.Value, DateTimeKind.Utc);
+            query = query.Where(l => l.CreatedAt >= utcStart);
+        }
 
         if (end.HasValue)
-            query = query.Where(l => l.CreatedAt <= end.Value);
+        {
+            var utcEnd = DateTime.SpecifyKind(end.Value, DateTimeKind.Utc);
+            query = query.Where(l => l.CreatedAt <= utcEnd);
+        }
 
         var totalCount = await query.CountAsync();
         var items = await query

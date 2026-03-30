@@ -11,7 +11,7 @@ public class InvoiceRepository : IInvoiceRepository
     public InvoiceRepository(StockTechDbContext ctx) => _ctx = ctx;
 
     public async Task<IEnumerable<Invoice>> GetAllAsync() =>
-        await _ctx.Invoices
+        await _ctx.Invoices.AsNoTracking()
             .Include(i => i.Client)
             .Include(i => i.Items).ThenInclude(item => item.Product)
             .OrderByDescending(i => i.InvoiceDate)
@@ -19,7 +19,7 @@ public class InvoiceRepository : IInvoiceRepository
 
     public async Task<(IEnumerable<Invoice> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, string? search)
     {
-        var query = _ctx.Invoices
+        var query = _ctx.Invoices.AsNoTracking()
             .Include(i => i.Client)
             .Include(i => i.Items).ThenInclude(item => item.Product)
             .AsQueryable();
@@ -39,7 +39,7 @@ public class InvoiceRepository : IInvoiceRepository
     }
 
     public async Task<IEnumerable<Invoice>> GetByDateRangeAsync(DateTime from, DateTime to) =>
-        await _ctx.Invoices
+        await _ctx.Invoices.AsNoTracking()
             .Include(i => i.Client)
             .Include(i => i.Items).ThenInclude(item => item.Product)
             .Where(i => i.InvoiceDate >= from && i.InvoiceDate <= to)

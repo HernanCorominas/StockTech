@@ -11,10 +11,13 @@ public class BranchRepository : IBranchRepository
     public BranchRepository(StockTechDbContext ctx) => _ctx = ctx;
 
     public async Task<IEnumerable<Branch>> GetAllAsync() =>
-        await _ctx.Branches.OrderBy(b => b.Name).ToListAsync();
+        await _ctx.Branches.Include(b => b.Manager).AsNoTracking().OrderBy(b => b.Name).ToListAsync();
 
     public async Task<Branch?> GetByIdAsync(Guid id) =>
-        await _ctx.Branches.FindAsync(id);
+        await _ctx.Branches.Include(b => b.Manager).FirstOrDefaultAsync(b => b.Id == id);
+
+    public async Task<Branch?> GetByNameAsync(string name) =>
+        await _ctx.Branches.FirstOrDefaultAsync(b => b.Name.ToLower() == name.ToLower());
 
     public async Task AddAsync(Branch branch) => await _ctx.Branches.AddAsync(branch);
 

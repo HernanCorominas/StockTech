@@ -4,18 +4,28 @@ using StockTech.Application.Interfaces;
 using StockTech.Domain.Entities;
 using StockTech.Domain.Interfaces;
 using StockTech.Domain.Enums;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace StockTech.Application.Services;
 
 public class InvoiceService : IInvoiceService
 {
     private readonly IUnitOfWork _uow;
-    private readonly IInventoryService _inventoryService;
+    private readonly IInventoryMovementService _inventoryMovementService;
+    private readonly IDocumentService _documentService;
+    private readonly IStorageService _storageService;
 
-    public InvoiceService(IUnitOfWork uow, IInventoryService inventoryService)
+    public InvoiceService(
+        IUnitOfWork uow, 
+        IInventoryMovementService inventoryMovementService,
+        IDocumentService documentService,
+        IStorageService storageService)
     {
         _uow = uow;
-        _inventoryService = inventoryService;
+        _inventoryMovementService = inventoryMovementService;
+        _documentService = documentService;
+        _storageService = storageService;
     }
 
     public async Task<IEnumerable<InvoiceDto>> GetAllAsync()
@@ -47,14 +57,39 @@ public class InvoiceService : IInvoiceService
 
     public async Task<InvoiceDto> CreateAsync(CreateInvoiceDto dto)
     {
-        var client = await _uow.Clients.GetByIdAsync(dto.ClientId)
-            ?? throw new ArgumentException("Client not found");
+        Client? client = null;
+
+        // 1. Resolve Client
+        if (dto.ClientId.HasValue)
+        {
+            client = await _uow.Clients.GetByIdAsync(dto.ClientId.Value)
+                ?? throw new ArgumentException("Client not found");
+        }
+        else if (!string.IsNullOrWhiteSpace(dto.CustomerDocument))
+        {
+            // Auto-resolve or Auto-register (Optimized)
+            client = await _uow.Clients.GetByDocumentAsync(dto.CustomerDocument);
+
+            if (client == null && !string.IsNullOrWhiteSpace(dto.CustomerName))
+            {
+                // Create new client on the fly
+                client = new Client
+                {
+                    Id = Guid.NewGuid(),
+                    Name = dto.CustomerName,
+                    Document = dto.CustomerDocument,
+                    BranchId = dto.BranchId, // Linked to the same branch as the sale
+                    IsActive = true
+                };
+                await _uow.Clients.AddAsync(client);
+            }
+        }
 
         var invoice = new Invoice
         {
             InvoiceNumber = await GenerateInvoiceNumberAsync(),
-            ClientId = dto.ClientId,
-            BranchId = dto.BranchId,
+            ClientId = client?.Id,
+            BranchId = dto.BranchId ?? Guid.Empty, // Defaulting to Empty for now, will fix in Sprint 2
             TaxRate = dto.TaxRate,
             Notes = dto.Notes,
             InvoiceDate = DateTime.UtcNow
@@ -76,23 +111,20 @@ public class InvoiceService : IInvoiceService
             invoice.Items.Add(new InvoiceItem
             {
                 ProductId = product.Id,
-                Quantity = itemDto.Quantity,
+                VariantId = itemDto.VariantId,
+                Quantity = (int)itemDto.Quantity,
                 UnitPrice = product.Price,
                 LineTotal = lineTotal
             });
 
-            // Log inventory transaction (Kardex)
-            await _inventoryService.LogTransactionAsync(
+            // Log inventory transaction (Kardex) - Now handles Stock update
+            await _inventoryMovementService.LogTransactionAsync(
                 product.Id, 
                 itemDto.Quantity, 
                 TransactionType.Sale, 
                 invoice.InvoiceNumber,
-                invoiceId: invoice.Id);
-
-            // Decrement stock
-            product.Stock -= itemDto.Quantity;
-            product.UpdatedAt = DateTime.UtcNow;
-            _uow.Products.Update(product);
+                invoiceId: invoice.Id,
+                variantId: itemDto.VariantId);
         }
 
         invoice.Subtotal = subtotal;
@@ -100,11 +132,74 @@ public class InvoiceService : IInvoiceService
         invoice.Total = subtotal + invoice.TaxAmount;
 
         await _uow.Invoices.AddAsync(invoice);
+
+        // 5. Activity Log (Human Readable)
+        var activityLog = new ActivityLog
+        {
+            Id = Guid.NewGuid(),
+            BranchId = invoice.BranchId,
+            Message = $"Venta registrada: {invoice.InvoiceNumber} a {client?.Name ?? "Consumidor Final"} por {invoice.Total:C}",
+            Category = "Sales",
+            CreatedAt = DateTime.UtcNow
+        };
+        await _uow.ActivityLogs.AddAsync(activityLog);
+
         await _uow.CommitAsync();
 
         // Reload to get navigation properties
         var created = await _uow.Invoices.GetByIdAsync(invoice.Id);
         return Map(created!);
+    }
+
+    public async Task CancelAsync(Guid id)
+    {
+        var invoice = await _uow.Invoices.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Invoice {id} not found");
+
+        if (invoice.Status == InvoiceStatus.Cancelled)
+            throw new InvalidOperationException("Invoice is already cancelled");
+
+        // Reverse stock for each line item
+        foreach (var item in invoice.Items)
+        {
+            // Negative quantity = adjustment that restores stock (adds back)
+            await _inventoryMovementService.LogTransactionAsync(
+                item.ProductId,
+                -item.Quantity,   // negative triggers reversal in LogTransactionAsync
+                TransactionType.Adjustment,
+                $"CANCEL-{invoice.InvoiceNumber}",
+                variantId: item.VariantId);
+        }
+
+        invoice.Status = InvoiceStatus.Cancelled;
+        invoice.UpdatedAt = DateTime.UtcNow;
+        _uow.Invoices.Update(invoice);
+
+        var activityLog = new ActivityLog
+        {
+            Id = Guid.NewGuid(),
+            BranchId = invoice.BranchId,
+            Message = $"Factura anulada: {invoice.InvoiceNumber}. Stock revertido.",
+            Category = "Sales",
+            CreatedAt = DateTime.UtcNow
+        };
+        await _uow.ActivityLogs.AddAsync(activityLog);
+
+        await _uow.CommitAsync();
+    }
+
+    public async Task<string> GetInvoicePdfAsync(Guid id)
+    {
+        var invoice = await _uow.Invoices.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException("Factura no encontrada");
+
+        var dto = Map(invoice);
+        var pdfBytes = await _documentService.GenerateInvoicePdfAsync(dto);
+        
+        var fileName = $"Factura_{invoice.InvoiceNumber}_{DateTime.UtcNow:yyyyMMddHHmmss}.pdf";
+        var url = await _storageService.UploadFileAsync(pdfBytes, fileName, "application/pdf", "invoices");
+
+        return url;
     }
 
     private async Task<string> GenerateInvoiceNumberAsync()
@@ -118,8 +213,8 @@ public class InvoiceService : IInvoiceService
         i.Id,
         i.InvoiceNumber,
         i.ClientId,
-        i.Client?.Name ?? string.Empty,
-        i.Client?.Document ?? string.Empty,
+        i.Client?.Name ?? "Consumidor Final",
+        i.Client?.Document ?? "RNC Genérico",
         i.BranchId,
         i.Branch?.Name,
         i.InvoiceDate,
@@ -133,6 +228,7 @@ public class InvoiceService : IInvoiceService
         i.Items.Select(item => new InvoiceItemDto(
             item.Id,
             item.ProductId,
+            item.VariantId,
             item.Product?.Name ?? string.Empty,
             item.Quantity,
             item.UnitPrice,

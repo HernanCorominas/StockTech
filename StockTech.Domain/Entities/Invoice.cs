@@ -1,14 +1,16 @@
 using StockTech.Domain.Enums;
 
+using StockTech.Domain.Common;
+
 namespace StockTech.Domain.Entities;
 
-public class Invoice : BaseEntity
+public class Invoice : BaseEntity, ITenantEntity
 {
     public string InvoiceNumber { get; set; } = string.Empty;
-    public Guid ClientId { get; set; }
-    public Client Client { get; set; } = null!;
+    public Guid? ClientId { get; set; }
+    public Client? Client { get; set; }
     public Guid? BranchId { get; set; }
-    public Branch? Branch { get; set; }
+    public Branch Branch { get; set; } = null!;
     public DateTime InvoiceDate { get; set; } = DateTime.UtcNow;
     public decimal Subtotal { get; set; }
     public decimal TaxRate { get; set; } = 0.18m; // ITBIS 18%

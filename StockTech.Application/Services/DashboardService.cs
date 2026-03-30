@@ -10,7 +10,7 @@ public class DashboardService : IDashboardService
 
     public DashboardService(IUnitOfWork uow) => _uow = uow;
 
-    public async Task<DashboardDto> GetMetricsAsync(string? branchId = null)
+    public async Task<DashboardDto> GetMetricsAsync(string? branchId = null, string? role = null)
     {
         var allInvoices = (await _uow.Invoices.GetAllAsync()).ToList();
         var allPurchases = (await _uow.Purchases.GetAllAsync()).ToList();
@@ -55,8 +55,8 @@ public class DashboardService : IDashboardService
 
         // Category distribution
         var categoryDistribution = products
-            .GroupBy(p => p.Category ?? "Sin Categoría")
-            .Select(g => new CategoryStockDto(g.Key, g.Sum(p => p.Stock)))
+            .GroupBy(p => p.Category?.Name ?? "Sin Categoría")
+            .Select(g => new CategoryStockDto(g.Key, (int)g.Sum(p => p.Stock)))
             .ToList();
 
         // Branch sales breakdown (only meaningful if viewing all branches)
@@ -67,6 +67,29 @@ public class DashboardService : IDashboardService
                 .OrderByDescending(x => x.TotalSales)
                 .ToList()
             : new List<BranchSalesDto>();
+
+        var isCashier = string.Equals(role, "Cashier", StringComparison.OrdinalIgnoreCase);
+
+        // If it's a Cashier, hide sensitive financial data and restrict to today's sales (or similar logic)
+        // We'll zero out profit and cost-related metrics for Cashiers
+        if (isCashier)
+        {
+            return new DashboardDto(
+                TotalSales: totalSales,
+                TotalPurchases: 0, // Hidden
+                TotalInvoices: invoices.Count,
+                TotalPurchasesCount: 0, // Hidden
+                TotalClients: clients.Count,
+                TotalProducts: products.Count,
+                LowStockProducts: 0, // Hidden
+                Profit: 0, // Hidden
+                MonthlySales: monthlySales,
+                MonthlyPurchases: new List<MonthlySummaryDto>(), // Hidden
+                TopProducts: topProducts,
+                CategoryDistribution: categoryDistribution,
+                BranchSales: new List<BranchSalesDto>() // Hidden
+            );
+        }
 
         return new DashboardDto(
             TotalSales: totalSales,

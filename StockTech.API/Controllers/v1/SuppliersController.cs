@@ -17,8 +17,8 @@ public class SuppliersController : ControllerBase
     public SuppliersController(ISupplierService service) => _service = service;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll() =>
-        Ok(await _service.GetAllAsync());
+    public async Task<IActionResult> GetAll([FromQuery] Guid? branchId) =>
+        Ok(await _service.GetAllAsync(branchId));
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
@@ -32,5 +32,19 @@ public class SuppliersController : ControllerBase
     {
         var result = await _service.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] CreateSupplierDto dto)
+    {
+        var result = await _service.UpdateAsync(id, dto);
+        return Ok(result);
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        await _service.DeleteAsync(id);
+        return NoContent();
     }
 }

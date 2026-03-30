@@ -6,6 +6,7 @@ public interface IBranchRepository
 {
     Task<IEnumerable<Branch>> GetAllAsync();
     Task<Branch?> GetByIdAsync(Guid id);
+    Task<Branch?> GetByNameAsync(string name);
     Task AddAsync(Branch branch);
     void Update(Branch branch);
     void Delete(Branch branch);

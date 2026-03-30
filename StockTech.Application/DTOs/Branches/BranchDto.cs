@@ -4,7 +4,8 @@ public record CreateBranchDto(
     string Name,
     string Address,
     string Phone,
-    string ManagerName
+    Guid? ManagerId,
+    bool IsActive
 );
 
 public record BranchDto(
@@ -12,6 +13,16 @@ public record BranchDto(
     string Name,
     string Address,
     string Phone,
-    string ManagerName,
+    Guid? ManagerId,
+    string? ManagerName,
+    bool IsActive,
     DateTime CreatedAt
+);
+
+public record UpdateBranchDto(
+    string Name,
+    string Address,
+    string Phone,
+    Guid? ManagerId,
+    bool IsActive
 );

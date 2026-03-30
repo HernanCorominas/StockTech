@@ -4,5 +4,5 @@ namespace StockTech.Application.Interfaces;
 
 public interface IDashboardService
 {
-    Task<DashboardDto> GetMetricsAsync(string? branchId = null);
+    Task<DashboardDto> GetMetricsAsync(string? branchId = null, string? role = null);
 }
